@@ -6,13 +6,10 @@ bs=bash
 srcdir=src
 
 plot_codes=(
-    $jl $srcdir/plot_forcing.jl
-    $jl $srcdir/plot_stommel_dydt.jl
-    $jl $srcdir/plot_stommel_bifurcation_analytical.jl
-    $jl $srcdir/plot_stommel_bifurcation_phase.jl
-    $bs $srcdir/plot_ZATOM_bifurcation_xi.sh
-    $bs $srcdir/plot_ZATOM_bifurcation_MLT_S.sh
-    $jl $srcdir/plot_ZATOM_bifurcation_phase.jl
+    $jl $srcdir/plot_AMOC.jl
+    $jl $srcdir/plot_seaice.jl
+    $jl $srcdir/plot_SST.jl
+    $py $srcdir/plot_diff_map_SST_PREC.py
 )
 
 

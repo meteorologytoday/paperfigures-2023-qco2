@@ -55,11 +55,11 @@ def area_mean(data, area):
     return sum(data[idx] * aa) / sum(aa)
  
 domain_file = "CESM_domains/domain.lnd.fv0.9x1.25_gx1v6.090309.nc"
-output_dir = "graph"
 
 sim_var = getSimVars(["SST", "PREC_TOTAL"])
 
 plot_cases = ["POP2_671-700", "POP2_571-600", "EMOM", "MLM", "SOM"]
+plot_cases = ["POP2_671-700", "EMOM", "MLM", "SOM"]
 sim_casenames = getSimcases(plot_cases)
 
 
@@ -72,9 +72,12 @@ with Dataset(domain_file, "r") as f:
     area = f.variables["area"][:]
     llat  = f.variables["yc"][:]
     llon  = f.variables["xc"][:]
+   
 
-
+extrop_mask_idx = np.abs(llat) > 30.0
+trop_mask_idx   = np.abs(llat) <= 30.0
 lnd_mask_idx = (mask == 1.0)
+ocn_mask_idx = (mask == 0.0)
 
 data = {}
 
@@ -89,7 +92,7 @@ for scenario in ["CTL", "EXP"]:
         
         for varname, filename  in sim_var.items():
 
-            filename = "data/%s/%s" % (casename, filename, )
+            filename = "data/batch_diag/%s/%s" % (casename, filename, )
             
             with Dataset(filename, "r") as f:
                 print("%s => %s" % (casename, varname))
@@ -110,7 +113,8 @@ plot_infos = {
         "cmap_mean" : "GnBu",
         "cmap_diff" : "BrBG",
         "clevels_obs"  : np.linspace(0, 10, 11),
-        "clevels_diff" : np.linspace(-4, 4,  11),
+        "clevels_diff" : np.linspace(-5, 5,  11),
+        "clevels_diff_ticks" : np.linspace(-5, 5,  11),
         "factor"       : 86400.0 * 1000.0,
     },
 
@@ -120,7 +124,8 @@ plot_infos = {
         "unit"      : "[degC]",
         "cmap_mean" : "gnuplot",
         "clevels_obs"  : np.linspace(-2, 30, 33),
-        "clevels_diff" : np.linspace(-10, 10,  21),
+        "clevels_diff" : np.linspace(-1, 1,  21),
+        "clevels_diff_ticks" : np.linspace(-1, 1,  5),
         "factor"        : 1.0,
     },
 
@@ -196,11 +201,6 @@ plot_infos = {
 }
 """
 
-try: 
-    os.makedirs(output_dir)
-
-except:
-    pass
 
 
 proj1 = ccrs.PlateCarree(central_longitude=180.0)
@@ -239,8 +239,8 @@ for m in [4,]:#[0,2,4,]:#range(5):
  
     # Original
     fig = plt.figure(constrained_layout=False, figsize=(5 * len(plot_vars), 3 * len(sim_casenames)))
-    heights  = [1,] * len(sim_casenames)
-    widths   = [1,] * len(plot_vars) + [0.05]
+    heights  = [1,] * len(sim_casenames) + [0.1]
+    widths   = [1,] * len(plot_vars)
 
     spec = fig.add_gridspec(nrows=len(heights), ncols=len(widths), width_ratios=widths, height_ratios=heights, wspace=0.2, hspace=0.3, right=0.8) 
 
@@ -254,6 +254,11 @@ for m in [4,]:#[0,2,4,]:#range(5):
         factor = plot_info["factor"]
 
         clevels_diff  = plot_info["clevels_diff"]
+
+        if "clevels_diff_ticks" in plot_info: #.haskey("clevels_diff_ticks"):
+            clevels_diff_ticks = plot_info["clevels_diff_ticks"]
+        else:
+            clevels_diff_ticks = plot_info["clevels_diff"]
 
         if "cmap_diff" in plot_info:
             cmap_diff = cm.get_cmap(plot_info["cmap_diff"])
@@ -273,7 +278,7 @@ for m in [4,]:#[0,2,4,]:#range(5):
             row_idx = idx#caseinfo["col_idx"]
 
             _ax = fig.add_subplot(spec[row_idx, i], **proj_kw)
-            idx += 1
+
             ax.append(_ax)
             
             
@@ -287,9 +292,24 @@ for m in [4,]:#[0,2,4,]:#range(5):
             _STD_EXP = np.mean(data["EXP"][exp_name][var_std][rng, :, :], axis=(0,)) * factor
             _STD_CTL = np.mean(data["CTL"][exp_name][var_std][rng, :, :], axis=(0,)) * factor
 
+            if varname == "SST":
+
+                _EXP[extrop_mask_idx] = np.nan
+                _CTL[extrop_mask_idx] = np.nan
+
+                _EXP[lnd_mask_idx] = np.nan
+                _CTL[lnd_mask_idx] = np.nan
+
 
             _diff = _EXP - _CTL
-            _diff_mean = 0#area_mean(_diff, area)
+            
+            if varname == "SST":
+                _diff_mean = area_mean(_diff, area)
+            else:
+                _diff_mean = 0
+
+            
+            
             _diff -= _diff_mean
 
             mappable_diff = _ax.contourf(lon, lat, _diff,  clevels_diff,  cmap=cmap_diff, extend="both", transform=data_proj)
@@ -300,41 +320,39 @@ for m in [4,]:#[0,2,4,]:#range(5):
 #            _ax.legend(artists, labels, handleheight=2)
 
             #_ax.set_title("%s diff ( $\\Delta_{\\mathrm{mean}} = %.2f $ )" % (label, _diff_mean, ))
+            if idx == 0:
+                _ax.set_title(plot_info["display"])
 
             if i==0:
-                _ax.set_title("RESP_%s" % (label, ))
+                _ax.text(-0.15, 0.5, "%s" % (label, ), rotation=90, va="center", ha="center", transform=_ax.transAxes)
 
-#            if idx==1:
-#                _ax.set_ylabel(plot_info["display"])
-
-            #if ax_idx[1] == 0:
-            #    _ax.text(-0.15, 0.5, plot_info["display"],  rotation=0, va="center", ha="center", transform=_ax.transAxes)
+            idx += 1
 
         for _ax in ax:
- #           _ax.set_aspect(3)#'auto')
             gl = _ax.gridlines(crs=ccrs.PlateCarree(), draw_labels=True,
                   linewidth=1, color='gray', alpha=0.3, linestyle='-')
             
             gl.xlabels_top = False
             gl.ylabels_right = False
             gl.xlocator = mticker.FixedLocator([-180, -90, 0, 90, 180])
-            gl.ylocator = mticker.FixedLocator([-90, -60, -30, 0, 30, 60, 90])
+            gl.ylocator = mticker.FixedLocator([-30, -20, -10, 0, 10, 20, 30])
             gl.xformatter = LONGITUDE_FORMATTER
             gl.yformatter = LATITUDE_FORMATTER
 
             gl.xlabel_style = {'size': 8, 'color': 'black', 'ha':'center'}
             gl.ylabel_style = {'size': 8, 'color': 'black', 'ha':'right'}
-
+            _ax.set_extent([0, 360, -30, 30], crs=ccrs.PlateCarree())
  
 #        fig.subplots_adjust(right=0.85)
 
-        cax = fig.add_subplot(spec[0, -1])
-        cb_diff = fig.colorbar(mappable_diff,  cax=cax, ticks=clevels_diff, orientation="vertical")
+        cax = fig.add_subplot(spec[-1, i])
+        cb_diff = fig.colorbar(mappable_diff,  cax=cax, ticks=clevels_diff_ticks, orientation="horizontal")
         cb_diff.set_label("%s %s" % (plot_info["display"], plot_info["unit"]))
+            
 
 
 
-fig.savefig("%s/diff_map_%s_col.png" % (output_dir, "-".join(plot_vars)), dpi=600)
+fig.savefig("figures/diff_map_%s.png" % ("-".join(plot_vars)), dpi=600)
 plt.show()
 plt.close(fig)
 
