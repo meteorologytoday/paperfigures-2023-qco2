@@ -10,6 +10,7 @@ plot_codes=(
     $jl $srcdir/plot_seaice.jl
     $jl $srcdir/plot_SST.jl
     $py $srcdir/plot_diff_map_SST_PREC.py
+    $py $srcdir/plot_AMOC_psi.py
 )
 
 

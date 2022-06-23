@@ -3,11 +3,11 @@ using NCDatasets
 using Statistics
 
 
-Dataset("data/AMOC/qco2/output_POP2_MOC/processed-MOC_am.nc", "r") do ds
+Dataset("data/AMOC/qco2/processed-MOC_am.nc", "r") do ds
     global AMOC_qco2 = ds["AMOC_max"][:]
 end
 
-Dataset("data/AMOC/CTL/output_POP2_MOC/processed-MOC_am.nc", "r") do ds
+Dataset("data/AMOC/CTL/processed-MOC_am.nc", "r") do ds
     global AMOC_CTL = ds["AMOC_max"][:]
 end
 
