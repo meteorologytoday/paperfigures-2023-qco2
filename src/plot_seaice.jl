@@ -86,8 +86,8 @@ for (casename, caseinfo) in cases
 end
 
 ax[1].legend()
-ax[1].set_title("(a) NH sea ice volume")
-ax[2].set_title("(b) SH sea ice volume")
+ax[1].set_title("(c) NH sea ice volume")
+ax[2].set_title("(d) SH sea ice volume")
 
 
 for _ax in ax

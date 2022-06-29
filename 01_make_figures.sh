@@ -11,7 +11,11 @@ plot_codes=(
     $jl $srcdir/plot_SST.jl
     $py $srcdir/plot_diff_map_SST_PREC.py
     $py $srcdir/plot_AMOC_psi.py
+    $py "$srcdir/plot_diff_zmean.py --region=ATL"
+    $py "$srcdir/plot_diff_zmean.py --region=PAC"
+    $py "$srcdir/plot_diff_zmean.py --region=IND"
 )
+
 
 
 # Some code to download data and extract them

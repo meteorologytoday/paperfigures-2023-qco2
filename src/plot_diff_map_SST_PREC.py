@@ -3,6 +3,8 @@ from cartopy.mpl.gridliner import LONGITUDE_FORMATTER, LATITUDE_FORMATTER
 import matplotlib as mplt
 import matplotlib.ticker as mticker
 from matplotlib import cm
+import matplotlib.patches as patches
+
 from quick_tools import *
 
 import os
@@ -57,9 +59,11 @@ def area_mean(data, area):
 domain_file = "CESM_domains/domain.lnd.fv0.9x1.25_gx1v6.090309.nc"
 
 sim_var = getSimVars(["SST", "PREC_TOTAL"])
+#sim_var = getSimVars(["TMXL", "XMXL"])
 
 plot_cases = ["POP2_671-700", "POP2_571-600", "EMOM", "MLM", "SOM"]
 plot_cases = ["POP2_671-700", "EMOM", "MLM", "SOM"]
+#plot_cases = ["POP2_671-700",]
 sim_casenames = getSimcases(plot_cases)
 
 
@@ -147,6 +151,26 @@ plot_infos = {
         "factor"        : 1.0,
     },
 
+    "XMXL" : {
+        "display"   : "XMXL",
+        "unit"      : "[m]",
+        "cmap_mean" : "GnBu",
+        "clevels_obs"  : np.linspace(0, 300, 31),
+        "clevels_diff" : np.linspace(-20, 20, 11),
+        "factor"        : 1.0,
+    },
+
+
+    "TMXL" : {
+        "display"   : "TMXL",
+        "unit"      : "[m]",
+        "cmap_mean" : "GnBu",
+        "clevels_obs"  : np.linspace(0, 300, 31),
+        "clevels_diff" : np.linspace(-20, 20, 11),
+        "factor"        : 1.0,
+    },
+
+
     "aice" : {
         "display"   : "Sea-ice Concentration [%]",
         "unit"      : "[%]",
@@ -201,6 +225,12 @@ plot_infos = {
 }
 """
 
+boxes = [ 
+    ["", [-15, 15], [50, 95], "r"],
+    ["", [-15, 15], [150, 270], "r"],
+    ["", [-15, 15], [320, 350], "r"],
+]
+
 
 
 proj1 = ccrs.PlateCarree(central_longitude=180.0)
@@ -213,6 +243,7 @@ proj_kw = {
 
 
 plot_vars = ["SST", "PREC_TOTAL"]
+#plot_vars = ["TMXL", "XMXL"]
 #plot_vars = ["SST", "PREC_TOTAL"]
 #plot_vars = ["PREC_TOTAL",]
 
@@ -326,6 +357,11 @@ for m in [4,]:#[0,2,4,]:#range(5):
             if i==0:
                 _ax.text(-0.15, 0.5, "%s" % (label, ), rotation=90, va="center", ha="center", transform=_ax.transAxes)
 
+
+
+            for box_label, lat_rng, lon_rng, linecolor in boxes:
+                _ax.add_patch(patches.Rectangle((lon_rng[0], lat_rng[0]), lon_rng[1] - lon_rng[0], lat_rng[1] - lat_rng[0], linewidth=1, edgecolor=linecolor, facecolor='none', transform=data_proj))
+            
             idx += 1
 
         for _ax in ax:
@@ -343,7 +379,7 @@ for m in [4,]:#[0,2,4,]:#range(5):
             gl.ylabel_style = {'size': 8, 'color': 'black', 'ha':'right'}
             _ax.set_extent([0, 360, -30, 30], crs=ccrs.PlateCarree())
  
-#        fig.subplots_adjust(right=0.85)
+
 
         cax = fig.add_subplot(spec[-1, i])
         cb_diff = fig.colorbar(mappable_diff,  cax=cax, ticks=clevels_diff_ticks, orientation="horizontal")

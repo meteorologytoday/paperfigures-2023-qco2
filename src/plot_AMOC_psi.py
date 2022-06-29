@@ -134,7 +134,8 @@ ax.set_xlim([-30, 60])
 
 #ax.set_xlabel("Latitude")
 ax.set_ylabel("Depth [ m ]")
-ax.set_xticks([30, 40, 50, 60])
+ax.set_xticks([-30, 0, 30, 60])
+#ax.grid()
 #ax.set_xticklabels(["60S", "30S", "EQ", "30N", "60N"])
 
 #ax.xaxis.tick_top()

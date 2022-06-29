@@ -1,3 +1,4 @@
+*.nc
 *.swp
 *.png
 data/*

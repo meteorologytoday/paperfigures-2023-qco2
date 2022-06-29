@@ -54,9 +54,10 @@ def area_mean(data, area):
  
 domain_file = "CESM_domains/domain.lnd.fv0.9x1.25_gx1v6.090309.nc"
 output_dir = "graph"
-plot_vars = ["SST", "PREC_TOTAL", "TAUX", "TAUY"]
+#plot_vars = ["SST", "PREC_TOTAL", "TAUX", "TAUY"]
+plot_vars = ["PREC_TOTAL", "TAUX", "TAUY"]
 
-sim_casenames = getSimcases(["SOM", "MLM", "EMOM", "POP2"])
+sim_casenames = getSimcases(["SOM", "MLM", "EMOM", "POP2_671-700"])
 sim_var = getSimVars(plot_vars)
 
 with Dataset(domain_file, "r") as f:
@@ -86,7 +87,7 @@ for scenario in ["CTL", "EXP"]:
         
         for varname, filename  in sim_var.items():
 
-            filename = "data/%s/%s" % (data_dir, filename, )
+            filename = "data/batch_diag/%s/%s" % (data_dir, filename, )
             
             with Dataset(filename, "r") as f:
                 print("%s => %s" % (data_dir, varname))
@@ -294,7 +295,7 @@ except:
 #plot_vars = ["T_ML", "FSNT", "FLNT", "NetRad"]
 
 #plot_vars = ["NetRad", "SST", "PREC_TOTAL", "TAUX"]
-plot_vars = ["SST", "PREC_TOTAL", "TAUX", "TAUY"]
+#plot_vars = ["SST", "PREC_TOTAL", "TAUX", "TAUY"]
 #plot_vars = ["TAUX","TAUY",]
 
 fig, ax = plt.subplots(len(plot_vars), 1, sharex=True, figsize=(8, 4), constrained_layout=True, squeeze=False)
