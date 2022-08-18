@@ -14,8 +14,10 @@ plot_codes=(
     $py "$srcdir/plot_diff_zmean.py --region=ATL"
     $py "$srcdir/plot_diff_zmean.py --region=PAC"
     $py "$srcdir/plot_diff_zmean.py --region=IND"
+    $py "$srcdir/plot_diff_zmean_ln.py --region=IND"
+    $py "$srcdir/plot_diff_zmean_ln.py --region=ATL"
+    $py "$srcdir/plot_diff_zmean_ln.py --region=PAC"
 )
-
 
 
 # Some code to download data and extract them

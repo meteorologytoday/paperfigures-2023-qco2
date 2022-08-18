@@ -42,6 +42,10 @@ domain_file = "CESM_domains/domain.lnd.fv0.9x1.25_gx1v6.090309.nc"
 ocn_zdomain_file = "CESM_domains/POP2_zdomain.nc"
 atm_zdomain_file = "CESM_domains/cam4_lev.nc"
 
+lat_rng = np.array([-15, 15])
+z_rng   = np.array([200, 0])
+Re = 6.371e6
+
 with Dataset(domain_file, "r") as f:
     lat  = f.variables["yc"][:, 0]
     lon  = f.variables["xc"][0, :]
@@ -96,7 +100,7 @@ for scenario in ["CTL", "qco2"]:
                 else:
                     data[scenario][exp_name][varname] = f.variables[varname][0, :, :, lon_idx].mean(axis=2)
                 
-                if varname == "VVEL" and caseinfo["model"] != "POP2":
+                if varname == "WVEL" and caseinfo["model"] != "POP2":
                     WVEL = f.variables["WVEL"][0, :, :, lon_idx].mean(axis=2)
                     data[scenario][exp_name]["WVEL"] = (WVEL[1:, :] + WVEL[:-1, :]) / 2
 
@@ -121,6 +125,7 @@ factors = {
     "TEMP"  : 1,
     "OMEGA" : -1e2,
     "WVEL"  : 86400.0 * 365,
+    "VVEL"  : 86400.0 * 365,
     "V"     : 1,
     "DTCOND"  : 86400.0,
 }
@@ -128,7 +133,7 @@ factors = {
 cntr_levs = {
     "OMEGA" : np.linspace(-5,   5, 21),
     "T"     : np.linspace(0, 10, 21),
-    "TEMP"  : np.linspace(0, 5, 21),
+    "TEMP"  : np.linspace(0, 5, 11),
     "WVEL"  : np.linspace(-100, 100, 21),
     "DTCOND": np.linspace(-1, 1, 21),
 } 
@@ -166,16 +171,16 @@ for exp_name, caseinfo in sim_casenames.items():
     label = "%s" % exp_name
 
     d = {}
-    for varname in ["WVEL", "TEMP", "OMEGA", "V", "T", "DTCOND"]:
+    for varname in ["WVEL", "TEMP", "OMEGA", "V", "T", "DTCOND", "VVEL"]:
         d[varname] = getDIFF(exp_name, varname) * factors[varname]
    
 
-    mappable_diff_atm = ax_atm.contourf(lat, lev, d["T"], cntr_levs["T"], cmap="bwr", extend="both")
+    #mappable_diff_atm = ax_atm.contourf(lat, lev, d["T"], cntr_levs["T"], cmap="rainbow", extend="both")
     #mappable_diff_atm = ax_atm.contourf(lat, lev, d["OMEGA"], cntr_levs["OMEGA"], cmap="bwr", extend="both")
     #mappable_diff_atm = ax_atm.contourf(lat, lev, d["DTCOND"], cntr_levs["DTCOND"], cmap="hot_r", extend="both")
     CS = ax_atm.contour(lat, lev, d["OMEGA"], cntr_levs["OMEGA"], colors="k", linewidths=1)
     #CS = ax_atm.contour(lat, lev, d["T"], cntr_levs["T"], colors="k", linewidths=1)
-    #clabels = plt.clabel(CS, CS.levels, inline=True, fmt="%.1f", inline_spacing=0)
+    clabels = plt.clabel(CS, CS.levels, inline=True, fmt="%.1f", inline_spacing=0)
 
     ax_atm.set_title(label)
 
@@ -192,6 +197,12 @@ for exp_name, caseinfo in sim_casenames.items():
     HMXL = data["qco2"][exp_name]["HMXL"]
     ax_ocn.plot(lat, HMXL, color="white", linewidth=2)
 
+
+    quiver_ratio = np.abs(z_rng[1] - z_rng[0]) / (np.abs(lat_rng[1] - lat_rng[0]) * (2*np.pi*Re/360.0) )
+    #ax_ocn.quiver(lat, ocn_z_t, d["VVEL"], d["WVEL"] / quiver_ratio, scale=0.5e7)
+    #ax_ocn.streamplot(lat, ocn_z_t, d["VVEL"], d["WVEL"] / quiver_ratio)
+
+
     if caseinfo["model"] == "POP2":
         HMXL_before = data["qco2"]["EMOM"]["HMXL"]
         ax_ocn.plot(lat, HMXL_before, color="white", ls="dashed", linewidth=1)
@@ -199,7 +210,7 @@ for exp_name, caseinfo in sim_casenames.items():
     ax_idx += 1
 
 
-plt.colorbar(mappable_diff_atm, ax=ax[0, :].ravel().tolist(), orientation="vertical", label="Air Temp [K]", ticks=cb_ticks["T"])
+#plt.colorbar(mappable_diff_atm, ax=ax[0, :].ravel().tolist(), orientation="vertical", label="Air Temp [K]", ticks=cb_ticks["T"])
 plt.colorbar(mappable_diff_ocn, ax=ax[1, :].ravel().tolist(), orientation="vertical", label="Ocean Temp [K]", ticks=cb_ticks["TEMP"])
 
 
@@ -209,7 +220,7 @@ for _ax in ax.flatten():
     _ax.set_xticks([-20, -10, 0, 10, 20])
     _ax.set_xticklabels([])
     _ax.grid(True)
-    _ax.set_xlim([-15, 15])
+    _ax.set_xlim(lat_rng)
 
 for _ax in ax[-1, :]:
 #    _ax.tick_params(axis='x', which='both',length=0)
@@ -220,7 +231,7 @@ for _ax in ax[0, :]:
     _ax.set_ylim([1000, 100])
 
 for _ax in ax[1, :]:
-    _ax.set_ylim([200, 0])
+    _ax.set_ylim(z_rng)
 
 
 ax[0, 0].set_ylabel("Height [hPa]")

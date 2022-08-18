@@ -31,20 +31,15 @@ import matplotlib.pyplot as plt
 import sys, argparse
 from netCDF4 import Dataset
 import numpy as np
-from pprint import pprint
 
-time_folder = "consistent_50years"
-nyears = 50
+import argparse, pprint
 
-def ext(data):
-    s = data.shape
-    ndata = np.zeros((s[0], s[1]+1))
-    ndata[:, 0:-1] = data
-    ndata[:, -1] = data[:, 0]
-    return ndata
- 
-def ext_axis(lon):
-    return np.append(lon, 360) 
+parser = argparse.ArgumentParser()
+parser.add_argument('--region', type=str, help='an integer for the accumulator')
+args = parser.parse_args()
+pprint.pprint(args)
+
+region = args.region
 
 def area_mean(data, area):
     data.mask = False
@@ -53,7 +48,6 @@ def area_mean(data, area):
     return sum(data[idx] * aa) / sum(aa)
  
 domain_file = "CESM_domains/domain.lnd.fv0.9x1.25_gx1v6.090309.nc"
-output_dir = "graph"
 #plot_vars = ["SST", "PREC_TOTAL", "TAUX", "TAUY"]
 plot_vars = ["PREC_TOTAL", "TAUX", "TAUY"]
 
@@ -65,14 +59,20 @@ with Dataset(domain_file, "r") as f:
     lon  = f.variables["xc"][0, :]
 
 
-# Pacific ocean
-lon_idx = np.logical_and(lon > 150, lon < 250)
+lon_idx = {
+    "IND": np.logical_and(lon >  50, lon <  95),
+    "PAC": np.logical_and(lon > 150, lon < 270),
+    "ATL": np.logical_and(lon > 320, lon < 350),
+    "ALL": lon > -1,
+}[region]
 
-# Atlantic  
-#lon_idx = np.logical_and(lon > 330, lon < 360)
+region_name = {
+    "IND": "Indian Ocean",
+    "PAC": "Pacific Ocean",
+    "ATL": "Atlantic Ocean",
+    "ALL": "Global",
+}[region]
 
-# All ocean 
-#lon_idx = lon > -1 
 
 data = {}
 
@@ -129,11 +129,11 @@ plot_infos = {
 
     "PREC_TOTAL" : {
         "display"   : "Precip",
-        "unit"      : "mm / day",
+        "unit"      : "$\\mathrm{mm}\\,/\\,\\mathrm{day}$",
         "var_mean"  : "PREC_TOTAL_ZONAL_MM",
         "var_std"   : "PREC_TOTAL_ZONAL_MASTD",
         "ylim_mean" :      [0, 8],
-        "ylim_mean_diff" : [-0.5, 5.0],
+        "ylim_mean_diff" : [-2.0, 4.0],
         "ylim_mean_diff_ticks" : [-0.5, 0, 0.5, 1.0, 1.5, 2.0],
         "ylim_std"  : [0, 10],
         "factor"       : 86400.0 * 1000.0,
@@ -152,25 +152,25 @@ plot_infos = {
     },
 
     "TAUX" : {
-        "display"   : "Surface Zonal Wind Stress",
-        "unit"      : r"$ \mathrm{N} \; / \; \mathrm{m}^2 $",
+        "display"   : r"$\tau_x$",
+        "unit"      : r"$ \times 10^{-2}\, \mathrm{N} \; / \; \mathrm{m}^2 $",
         "var_mean"  : "TAUX_ZONAL_MM",
         "var_std"   : "TAUX_ZONAL_MASTD",
         "ylim_mean" : [-0.1, 0.1],
-        "ylim_mean_diff" : [-0.05, 0.05],
+        "ylim_mean_diff" : [-1.5, 2.5],
         "ylim_std"  : [-0.05, 0.05],
-        "factor"    : -1.0,
+        "factor"    : -1.0 * 1e2,
     },
 
     "TAUY" : {
-        "display"   : "Surface Meridional Wind Stress",
-        "unit"      : r"$ \mathrm{N} \; / \; \mathrm{m}^2 $",
+        "display"   : r"$\tau_y$",
+        "unit"      : r"$ \times 10^{-2}\, \mathrm{N} \; / \; \mathrm{m}^2 $",
         "var_mean"  : "TAUY_ZONAL_MM",
         "var_std"   : "TAUY_ZONAL_MASTD",
         "ylim_mean" : [-0.1, 0.1],
-        "ylim_mean_diff" : [-0.05, 0.05],
+        "ylim_mean_diff" : [-1.5, 2.5],
         "ylim_std"  : [-0.05, 0.05],
-        "factor"    : -1.0,
+        "factor"    : -1.0 * 1e2,
     },
 
 
@@ -281,13 +281,6 @@ plot_infos = {
 
 }
            
-try: 
-    os.makedirs(output_dir)
-
-except:
-    pass
-
-
 #plot_vars = ["PREC_TOTAL", "TAUX"]
 #plot_vars = ["T_ML", "PREC_TOTAL", "TAUX"]
 #plot_vars = ["T_ML", "TREFHT", "PREC_TOTAL", "h_ML"]
@@ -298,7 +291,9 @@ except:
 #plot_vars = ["SST", "PREC_TOTAL", "TAUX", "TAUY"]
 #plot_vars = ["TAUX","TAUY",]
 
-fig, ax = plt.subplots(len(plot_vars), 1, sharex=True, figsize=(8, 4), constrained_layout=True, squeeze=False)
+fig, ax = plt.subplots(len(plot_vars), 1, sharex=True, figsize=(4, 3 * len(plot_vars)), constrained_layout=True, squeeze=False)
+
+#fig.suptitle(region_name)
 
 ax = ax.flatten()
 
@@ -316,10 +311,13 @@ for (i, varname) in enumerate(plot_vars):
     #ax[i].set_title("(%s) %s" % ( thumbnail[i], plot_info["display"]))
     #ax[i].set_title("Zonal mean of annual precipitation")
 
+    ax[i].plot([-90, 90], [0, 0], linestyle="dashed", color="black", linewidth=1)
+            
+
    
     for exp_name, caseinfo in sim_casenames.items():
       
-        label = "RESP_%s" % exp_name
+        label = "%s" % caseinfo["model"]
         lc = caseinfo["lc"]
         ls = caseinfo["ls"]
 
@@ -332,11 +330,11 @@ for (i, varname) in enumerate(plot_vars):
 
 
         if varname == "vice":
-            ax[i].plot(lat, _CTL_mean, linestyle="dashed", color=lc, label=label)
-            ax[i].plot(lat, _EXP_mean, linestyle=ls, color=lc, label=label)
+            ax[i].plot(lat, _CTL_mean, linestyle="dashed", color=lc, label=label, zorder=10)
+            ax[i].plot(lat, _EXP_mean, linestyle=ls, color=lc, label=label, zorder=10)
 
         else:
-            ax[i].plot(lat, _diff_mean, linestyle=ls, color=lc, label=label)
+            ax[i].plot(lat, _diff_mean, linestyle=ls, color=lc, label=label, zorder=10)
 
         if varname == "PREC_TOTAL" and exp_name == "POP2":
             _ax = ax[i].twinx()
@@ -359,29 +357,31 @@ for (i, varname) in enumerate(plot_vars):
         """
 
 
-    ax[i].set_ylabel(r"%s response [ %s ]" % (plot_info["display"], plot_info["unit"]))
+    ax[i].set_ylabel(r"%s [ %s ]" % (plot_info["display"], plot_info["unit"]))
     ax[i].set_ylim(plot_info["ylim_mean_diff"])
 
     if 'yticks_mean' in plot_info:
         ax[i].set_yticks(plot_info["yticks_mean"])
 
     for _ax in ax.flatten():
-        _ax.set_xticks([-90, -60, -30, 0, 30, 60, 90])
+        #_ax.set_xticks([-90, -60, -30, 0, 30, 60, 90])
+        _ax.set_xticks([-10, 0, 10])
         _ax.set_xticklabels([])
         _ax.grid(True)
 
     for _ax in ax[0:-1]:
         _ax.tick_params(axis='x', which='both',length=0)
 
-    ax[-1].set_xticklabels(["90S", "60S", "30S", "EQ", "30N", "60N", "90N"])
-    ax[-1].set_xlim([-90, 90])
+    #ax[-1].set_xticklabels(["90S", "60S", "30S", "EQ", "30N", "60N", "90N"])
+    ax[-1].set_xticklabels(["10S", "EQ", "10N"])
+    ax[-1].set_xlim([-15, 15])
 
 #fig.subplots_adjust(bottom=0.2)    
 #fig.legend(handles=ax[0].get_lines(), bbox_to_anchor=(0.5, 0.15), ncol=3, loc='upper center', framealpha=0.0)
-ax[0].legend(ncol=1, loc='upper left', framealpha=1, fontsize=12, columnspacing=1.0, handletextpad=0.3)
+ax[0].legend(ncol=4, loc='upper center', framealpha=1, fontsize=10, columnspacing=1.0, handletextpad=0.3, handlelength=1)
 
 #fig.savefig("%s/compare_exp_minus_SST_precip.png" % (output_dir,), dpi=200)
-fig.savefig("graph/diff_zmean_SST_precip_TAUX.png", dpi=600)
+fig.savefig("figures/diff_zmean_ln_%s.png" % (region,), dpi=600)
 plt.show()
 plt.close(fig)
 

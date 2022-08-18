@@ -62,6 +62,7 @@ def getSimcases(casenames):
     all_simcases = {
 
         "SOM" : {
+            "model" : "SOM",
             "CTL": "CTL/SOM",
             "EXP": "qco2/SOM",
             "lc" : "red",
@@ -71,6 +72,7 @@ def getSimcases(casenames):
         },
 
         "MLM" : {
+            "model" : "MLM",
             "CTL": "CTL/MLM",
             "EXP": "qco2/MLM",
             "lc" : "limegreen",
@@ -80,6 +82,7 @@ def getSimcases(casenames):
         },
         
         "EMOM" : {
+            "model" : "EMOM",
             "CTL": "CTL/EMOM",
             "EXP": "qco2/EMOM",
             "lc" : "dodgerblue",
@@ -89,6 +92,7 @@ def getSimcases(casenames):
         },
 
         "POP2_571-600" : {
+            "model" : "POP2",
             "CTL": "CTL/POP2",
             "EXP": "qco2/POP2_571-600",
             "lc" : "black",
@@ -98,6 +102,7 @@ def getSimcases(casenames):
         },
 
         "POP2_671-700" : {
+            "model" : "POP2",
             "CTL": "CTL/POP2",
             "EXP": "qco2/POP2_671-700",
             "lc" : "black",
