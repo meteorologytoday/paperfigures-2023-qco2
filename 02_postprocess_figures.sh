@@ -14,8 +14,13 @@ convert \( figures/ocean_SST.png \) \
      figures/merged-global-diag.png
 
 convert \( figures/AMOC_POP2.png \) \
-    \( figures/AMOC_psi.png -scale 60% \) -gravity center -append \
+    \( figures/AMOC_psi.png -scale 50% \) -gravity center +append \
      figures/merged-AMOC.png
+
+convert \( figures/merged-global-diag.png \) \
+    \( figures/merged-AMOC.png \) -gravity center -append \
+     figures/merged-equilibrium-diag.png
+
 
 convert \( figures/diff_zmean_PAC.png -rotate 90 -gravity North -background white -splice 0x250 -gravity North -pointsize 120 -annotate +0+150 '(a) PAC' -rotate -90 \) \
         \( figures/diff_zmean_ATL.png -rotate 90 -gravity North -background white -splice 0x250 -gravity North -pointsize 120 -annotate +0+150 '(b) ATL' -rotate -90 \) \
@@ -31,16 +36,23 @@ convert \( figures/diff_zmean_ln_PAC.png -gravity North -background white -splic
      figures/merged-diff_zmean_ln.png
 
 
+convert \( figures/OHT_decomp_PAC.png -gravity North -background white -splice 0x200 -gravity North -pointsize 120 -annotate +200+150 '(a) PAC' \) \
+        \( figures/OHT_decomp_ATL.png -gravity North -background white -splice 0x200 -gravity North -pointsize 120 -annotate +200+150 '(b) ATL' \) \
+        \( figures/OHT_decomp_IND.png -gravity North -background white -splice 0x200 -gravity North -pointsize 120 -annotate +200+150 '(c) IND' \) \
+     +append \
+     figures/merged-OHT_decomp.png
 
 
 
 
+#    merged-global-diag.png          fig01.png
+#    merged-AMOC.png                 fig02.png
 name_pairs=(
-    merged-global-diag.png          fig01.png
-    merged-AMOC.png                 fig02.png
-    diff_map_SST-PREC_TOTAL.png     fig03.png
-    merged-diff_zmean.png           fig04.png
-    merged-diff_zmean_ln.png        fig05.png
+    merged-equilibrium-diag.png     fig01.png
+    diff_map_SST-PREC_TOTAL.png     fig02.png
+    merged-diff_zmean.png           fig03.png
+    merged-diff_zmean_ln.png        fig04.png
+    merged-OHT_decomp.png           fig05.png
 )
 
 N=$(( ${#name_pairs[@]} / 2 ))

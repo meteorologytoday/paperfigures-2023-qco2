@@ -138,6 +138,7 @@ ax.set_xticks([-30, 0, 30, 60])
 #ax.grid()
 #ax.set_xticklabels(["60S", "30S", "EQ", "30N", "60N"])
 
+ax.set_title("(g) AMOC streamfunction")
 #ax.xaxis.tick_top()
 ax.invert_yaxis()
 #ax.text(0.1, 0.9, "(a)", va="top", ha="left", transform=ax[0].transAxes)

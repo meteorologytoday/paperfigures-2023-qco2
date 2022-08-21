@@ -7,24 +7,28 @@ def getSimcases(casenames):
             "model" : "SOM",
             "CTL"  : "paper2021_SOM_CTL_coupled/0171-0200",
             "qco2" : "qco2_SOM/0371-0400",
+            "lc" : "red",
         },
 
         "MLM" : {
             "model" : "MLM",
             "CTL"  : "paper2021_MLM_CTL_coupled/0171-0200",
             "qco2" : "qco2_MLM/0471-0500",
+            "lc" : "limegreen",
         },
 
         "EMOM" : {
             "model" : "EMOM",
             "CTL"  : "paper2021_EMOM_CTL_coupled/0171-0200",
             "qco2" : "qco2_EMOM/0471-0500",
+            "lc" : "dodgerblue",
         },
 
         "POP2" : {
             "model" : "POP2",
             "CTL"  : "paper2021_CTL_POP2/0171-0200",
             "qco2" : "qco2_POP2/0671-0700",
+            "lc" : "black",
         },
 
     }
