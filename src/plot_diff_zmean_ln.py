@@ -36,6 +36,7 @@ import argparse, pprint
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--region', type=str, help='an integer for the accumulator')
+parser.add_argument('--thumbnail-skip', type=int, default=0)
 args = parser.parse_args()
 pprint.pprint(args)
 
@@ -88,7 +89,7 @@ for scenario in ["CTL", "EXP"]:
         for varname, filename  in sim_var.items():
 
             filename = "data/batch_diag/%s/%s" % (data_dir, filename, )
-            
+            print("Reading file: %s" % (filename,)) 
             with Dataset(filename, "r") as f:
                 print("%s => %s" % (data_dir, varname))
                 var_mean = "%s_AM" % varname
@@ -97,8 +98,9 @@ for scenario in ["CTL", "EXP"]:
                 data[scenario][exp_name][var_mean] = f.variables[var_mean][:, 0, :, lon_idx]
                 data[scenario][exp_name][var_std]  = f.variables[var_std][:, 0, :, lon_idx]
 
-        
+                print("Loaded")        
                 
+print("Data finished loading..")
 #        data[scenario][exp_name]["NetRad_AM"] = (- data[scenario][exp_name]["FSNT_AM"] + data[scenario][exp_name]["FLNT_AM"])
 
 
@@ -290,15 +292,16 @@ plot_infos = {
 #plot_vars = ["NetRad", "SST", "PREC_TOTAL", "TAUX"]
 #plot_vars = ["SST", "PREC_TOTAL", "TAUX", "TAUY"]
 #plot_vars = ["TAUX","TAUY",]
+print("Creating plots...")
 
-fig, ax = plt.subplots(len(plot_vars), 1, sharex=True, figsize=(4, 3 * len(plot_vars)), constrained_layout=True, squeeze=False)
+fig, ax = plt.subplots(len(plot_vars), 1, sharex=True, figsize=(6, 3 * len(plot_vars)), constrained_layout=True, squeeze=False)
 
 #fig.suptitle(region_name)
 
 ax = ax.flatten()
 
 #fig.subplots_adjust(wspace=0.3)
-thumbnail = "abcdefg"
+thumbnail = "abcdefghijklmn"
 for (i, varname) in enumerate(plot_vars):
 
     plot_info = plot_infos[varname]
@@ -308,7 +311,7 @@ for (i, varname) in enumerate(plot_vars):
 
     factor = plot_info["factor"]
     
-    #ax[i].set_title("(%s) %s" % ( thumbnail[i], plot_info["display"]))
+    ax[i].set_title("(%s) %s-%s" % ( thumbnail[i + args.thumbnail_skip], args.region, plot_info["display"]))
     #ax[i].set_title("Zonal mean of annual precipitation")
 
     ax[i].plot([-90, 90], [0, 0], linestyle="dashed", color="black", linewidth=1)
@@ -378,10 +381,12 @@ for (i, varname) in enumerate(plot_vars):
 
 #fig.subplots_adjust(bottom=0.2)    
 #fig.legend(handles=ax[0].get_lines(), bbox_to_anchor=(0.5, 0.15), ncol=3, loc='upper center', framealpha=0.0)
-ax[0].legend(ncol=4, loc='upper center', framealpha=1, fontsize=10, columnspacing=1.0, handletextpad=0.3, handlelength=1)
+ax[0].legend(ncol=4, loc='upper center', framealpha=1, fontsize=10, columnspacing=1.0, handletextpad=0.3, handlelength=2.0)
 
 #fig.savefig("%s/compare_exp_minus_SST_precip.png" % (output_dir,), dpi=200)
 fig.savefig("figures/diff_zmean_ln_%s.png" % (region,), dpi=600)
+
+print("Showing plots...")
 plt.show()
 plt.close(fig)
 

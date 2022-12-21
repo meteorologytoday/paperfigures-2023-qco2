@@ -37,6 +37,7 @@ import argparse, pprint
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--region', type=str, help='an integer for the accumulator', required=True)
+parser.add_argument('--thumbnail-skip', type=int, default=0)
 args = parser.parse_args()
 pprint.pprint(args)
 
@@ -159,7 +160,7 @@ def loadData(exp_name):
     return loaded_data
 
          
-fig, ax = plt.subplots(2, 1, sharex=True, figsize=(4, 3 * 2), constrained_layout=True, squeeze=False)
+fig, ax = plt.subplots(2, 1, sharex=True, figsize=(6, 9), constrained_layout=True, squeeze=False)
 
 ax = ax.flatten()
 
@@ -181,14 +182,16 @@ for exp_name, caseinfo in sim_casenames.items():
 
     #ax[0].plot(lat, d_dif["TAUX"], color=lc, label=label)
     #ax[1].plot(lat, d_dif["TAUY"], color=lc, label=label)
-    ax[0].plot(lat, d_dif["OHT_rot"] / 1e12, color=lc, label=label, ls="solid")
-    ax[0].plot(lat, d_dif["OHT_fct"] / 1e12, color=lc, label=label, ls="dashed")
+    ax[0].plot(lat, d_dif["OHT_rot"] / 1e12, color=lc, label="%s (Ekman)" % label, ls="solid")
+    ax[0].plot(lat, d_dif["OHT_fct"] / 1e12, color=lc, label="%s (friction)" % label, ls="dashed")
  
-    ax[1].plot(lat_mid, d_dif["OHTCVG_rot"] / 1e12, color=lc, label=label, ls="solid")
-    ax[1].plot(lat_mid, d_dif["OHTCVG_fct"] / 1e12, color=lc, label=label, ls="dashed")
+    ax[1].plot(lat_mid, d_dif["OHTCVG_rot"] / 1e12, color=lc, label="%s (Ekman)" % label, ls="solid")
+    ax[1].plot(lat_mid, d_dif["OHTCVG_fct"] / 1e12, color=lc, label="%s (friction)" % label, ls="dashed")
+
 
 for _ax in ax:
-        
+
+    _ax.legend(ncol=2, loc='upper center', framealpha=1, fontsize=10, columnspacing=1, handletextpad=0.3, handlelength=2)
     _ax.grid(True)
     _ax.plot([-90, 90], [0, 0], linestyle="dashed", color="black", linewidth=1)
     _ax.set_xticks([-10, 0, 10])
@@ -196,14 +199,14 @@ for _ax in ax:
 ax[-1].set_xticklabels(["10S", "EQ", "10N"])
 ax[-1].set_xlim([-15, 15])
 
-ax[0].set_ylim([-4.0, 4.0])
-ax[1].set_ylim([-1.5, 2.0])
+ax[0].set_ylim([-4.0, 5.0])
+ax[1].set_ylim([-1.2, 2.5])
 
 ax[0].set_ylabel("Density of OHT\n[$ \\times 10^{12} \\mathrm{W} \\, / \\, \\mathrm{deg} $]")
 ax[1].set_ylabel("Density of OHTC\n[$ \\times 10^{12} \\mathrm{W} \\, / \\, \\mathrm{deg}^2 $]")
 
-#ax[0].set_title("(%s)" % (thumbnails[0],))
-#ax[1].set_title("(%s)" % (thumbnails[1],))
+ax[0].set_title("(%s) %s-OHT" % ("abcdefghijklmn"[args.thumbnail_skip], args.region))
+ax[1].set_title("(%s) %s-OHTC" % ("abcdefghijklmn"[args.thumbnail_skip+1], args.region))
 
 #ax[0].legend(loc='auto', framealpha=1, fontsize=10, columnspacing=1.0, handletextpad=0.3, handlelength=1)
 #ax[0].legend()
