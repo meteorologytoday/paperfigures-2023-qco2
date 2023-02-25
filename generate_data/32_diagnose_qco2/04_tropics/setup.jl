@@ -1,6 +1,6 @@
 using DataStructures
 
-archive_root = "/glade/scratch/tienyiao/archive"
+archive_root = "/grimsey/tienyiah/simulation_data/qco2/"
 output_dir = "output"
 domain_files = Dict(
     "ice" => "CESM_domains/domain.ocn.gx1v6.090206.nc",
@@ -12,26 +12,23 @@ cases = OrderedDict(
 
     "qco2_SOM" => Dict(
         "model" => "SOM",
-        "yrng" => [201, 400],
-        "label" => "4xCO2_SOM",
+        "yrng" => [371, 400],
     ),
 
     "qco2_MLM" => Dict(
         "model" => "MLM",
-        "yrng" => [201, 500],
-        "label" => "4xCO2_MLM",
+        "yrng" => [471, 500],
     ),
 
     "qco2_EMOM" => Dict(
         "model" => "EMOM",
-        "yrng" => [201, 500],
-        "label" => "4xCO2_EMOM",
+        "yrng" => [471, 500],
     ),
 
     "qco2_POP2" => Dict(
         "model" => "POP2",
-        "yrng" => [  1, 700],
-        "label" => "4xCO2_POP2",
+        "yrng" => [671, 700],
     ),
 )
+
 casenames = keys(cases)

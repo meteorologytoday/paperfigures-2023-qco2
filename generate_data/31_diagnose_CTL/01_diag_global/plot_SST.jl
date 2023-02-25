@@ -1,7 +1,7 @@
 using Formatting
 using NCDatasets
 using Statistics
-include(joinpath("lib", "CESMReader.jl"))
+include(joinpath("..", "CESM-diagnostic", "src", "diagnose_scripts_julia", "lib", "CESMReader.jl"))
 
 using .CESMReader
 
@@ -13,7 +13,7 @@ end
 
 include("setup.jl")
 
-data_dir = joinpath("data", "global_diag")
+data_dir = "output"
 
 data = Dict()
 models = ["SOM", "MLM", "EMOM", "POP2"]
@@ -88,23 +88,23 @@ for (casename, caseinfo) in cases
     d = data[casename]
     t = collect(1:length(d["TEMP"])) * year_skip
 
-    ax[1].plot(t, d["TEMP_NH"], label=caseinfo["label"])
-    ax[2].plot(t, d["TEMP_SH"], label=caseinfo["label"])
+    ax[1].plot(t, d["TEMP_NH"], label=casename)
+    ax[2].plot(t, d["TEMP_SH"], label=casename)
 
 end
 
 ax[1].legend()
 
-ax[1].set_title("(a) NH SST")
-ax[2].set_title("(b) SH SST")
+ax[1].set_title("NH SST")
+ax[2].set_title("SH SST")
 
 for _ax in ax
-    _ax.grid("on")
     _ax.set_ylabel("[\$ {}^\\circ\\mathrm{C} \$]")
     _ax.set_xlabel("Time [ yr ]")
 end
 
 
+mkpath("figures")
 plt.savefig("figures/ocean_SST.png", dpi=300)
 
 plt.show()

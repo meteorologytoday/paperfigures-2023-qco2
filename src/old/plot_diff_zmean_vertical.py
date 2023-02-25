@@ -88,7 +88,7 @@ for scenario in ["CTL", "qco2"]:
 
         with Dataset(atm_filename, "r") as f:
             print("Loading %s" % (atm_filename,))
-            for varname in ["OMEGA", "DTCOND", "V", "T", "MSE"]:
+            for varname in ["OMEGA", "DTCOND", "V", "T"]:
                 data[scenario][exp_name][varname] = f.variables[varname][0, :, :, lon_idx].mean(axis=2)
 
         with Dataset(ocn_filename, "r") as f:
@@ -129,7 +129,6 @@ factors = {
     "VVEL"  : 86400.0 * 365,
     "V"     : 1,
     "DTCOND"  : 86400.0,
-    "MSE" : 1e-3,
 }
 
 cntr_levs = {
@@ -138,13 +137,11 @@ cntr_levs = {
     "TEMP"  : np.linspace(0, 5, 11),
     "WVEL"  : np.linspace(-100, 100, 21),
     "DTCOND": np.linspace(-1, 1, 21),
-    "MSE"   : np.linspace(0, 20, 21),
 } 
  
 cb_ticks = {
     "T"     : np.linspace(0, 10, 6),
     "TEMP"  : np.linspace(0, 5, 6),
-    "MSE"  : np.linspace(0, 20, 5),
 } 
     
 fig, ax = plt.subplots(2 * len(plot_cases)//2, 2, sharey=False, sharex=False, figsize=(6 * 2, 3 * (2*len(plot_cases) / 2)), constrained_layout=True, squeeze=False)
@@ -168,11 +165,11 @@ for exp_name, caseinfo in sim_casenames.items():
     label = "%s" % exp_name
 
     d = {}
-    for varname in ["WVEL", "TEMP", "OMEGA", "V", "T", "DTCOND", "VVEL", "MSE"]:
+    for varname in ["WVEL", "TEMP", "OMEGA", "V", "T", "DTCOND", "VVEL"]:
         d[varname] = getDIFF(exp_name, varname) * factors[varname]
    
 
-    mappable_diff_atm = ax_atm.contourf(lat, lev, d["MSE"], cntr_levs["MSE"], cmap="hot_r", extend="both")
+    #mappable_diff_atm = ax_atm.contourf(lat, lev, d["T"], cntr_levs["T"], cmap="rainbow", extend="both")
     #mappable_diff_atm = ax_atm.contourf(lat, lev, d["OMEGA"], cntr_levs["OMEGA"], cmap="bwr", extend="both")
     #mappable_diff_atm = ax_atm.contourf(lat, lev, d["DTCOND"], cntr_levs["DTCOND"], cmap="hot_r", extend="both")
     CS = ax_atm.contour(lat, lev, d["OMEGA"], cntr_levs["OMEGA"], colors="k", linewidths=1)
@@ -219,7 +216,6 @@ for exp_name, caseinfo in sim_casenames.items():
         _ax.grid(True)
         _ax.set_xlim(lat_rng)
  
-    plt.colorbar(mappable_diff_atm, ax=ax_atm, orientation="vertical", label="MSE [kJ]", ticks=cb_ticks["MSE"])
     plt.colorbar(mappable_diff_ocn, ax=ax_ocn, orientation="vertical", label="Ocean Temp [K]", ticks=cb_ticks["TEMP"])
 
 

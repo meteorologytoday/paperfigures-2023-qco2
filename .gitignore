@@ -1,5 +1,8 @@
 *.nc
 *.swp
 *.png
+*.tmp
 data/*
+data_original/
+data
 */__pycache__/*

@@ -22,10 +22,6 @@ plot_codes=(
     $py "$srcdir/plot_OHT_decomposition.py --region=IND --thumbnail-skip 7"
 )
 
-
-# Some code to download data and extract them
-
-
 mkdir figures
 
 N=$(( ${#plot_codes[@]} / 2 ))

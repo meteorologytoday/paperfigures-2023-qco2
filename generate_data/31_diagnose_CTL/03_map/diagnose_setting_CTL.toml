@@ -1,0 +1,40 @@
+diag-label = "CTL"
+archive-root = "/seley/tienyiah/paper2021_simulation/"
+
+[domains]
+atm = "/rainbow/CESM_domains/domain.lnd.fv0.9x1.25_gx1v6.090309.nc"
+ocn = "/rainbow/CESM_domains/domain.ocn.gx1v6.090206.nc"
+ice = "/rainbow/CESM_domains/domain.ocn.gx1v6.090206.nc"
+
+[remap-files.ice2atm]
+    nn = "/rainbow/CESM_domains/wgt_domain.ocn.gx1v6.090206_to_domain.lnd.fv0.9x1.25_gx1v6.090309/wgt.bilinear.nc"
+
+[remap-files.ocn2atm]
+    nn = "/rainbow/CESM_domains/wgt_domain.ocn.gx1v6.090206_to_domain.lnd.fv0.9x1.25_gx1v6.090309/wgt.bilinear.nc"
+
+
+[diagnose]
+atm = true
+ice = true
+ocn = true
+
+
+[diagcases.SOM]
+    casename = "paper2021_SOM_CTL_coupled"
+    year-rng = [ 171, 200 ]
+    pop2 = false
+
+[diagcases.MLM]
+    casename = "paper2021_MLM_CTL_coupled"
+    year-rng = [ 171, 200 ]
+    pop2 = false
+
+[diagcases.EMOM]
+    casename = "paper2021_EMOM_CTL_coupled"
+    year-rng = [ 171, 200 ]
+    pop2 = false
+
+[diagcases.POP2]
+    casename = "paper2021_CTL_POP2"
+    year-rng = [ 171, 200 ]
+    pop2 = true

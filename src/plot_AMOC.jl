@@ -32,10 +32,10 @@ println("Done")
 fig, ax = plt.subplots(2, 1, figsize=(6, 4), constrained_layout=true)
 
 ax[1].plot(collect(1:length(AMOC_CTL)),  AMOC_CTL,  color="blue", label="PI")
-ax[1].plot(collect(1:length(AMOC_qco2)), AMOC_qco2, color="red",  label="QCO2")
+ax[1].plot(collect(1:length(AMOC_qco2)), AMOC_qco2, color="red",  label="4xCO2")
 
 ax[2].plot(collect(1:length(ATLOHT_eq_CTL)), ATLOHT_eq_CTL,   color="blue", label="PI")
-ax[2].plot(collect(1:length(ATLOHT_eq_qco2)), ATLOHT_eq_qco2,  color="red", label="QCO2")
+ax[2].plot(collect(1:length(ATLOHT_eq_qco2)), ATLOHT_eq_qco2,  color="red", label="4xCO2")
 
 
 ax[1].set_title("(e) AMOC strength")
