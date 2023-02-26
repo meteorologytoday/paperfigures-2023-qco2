@@ -15,7 +15,7 @@ This is the code to reproduce figures of the paper "The Effect of Air-sea Coupli
 # Reproducing Figures
 
 1. Clone this project.
-2. Download the file `data.zip` from [https://doi.org/10.5281/zenodo.7549597](https://doi.org/10.5281/zenodo.7549597).
+2. Download the file `data.zip` from [https://doi.org/10.5281/zenodo.7677817](https://doi.org/10.5281/zenodo.7677817)
 3. Unzip the folder `data` from `data.zip` into this git project root folder (i.e., the same folder containing this `README.md` file).
 4. Run `00_runall.sh`.
 5. The figures are generated in the folder `final_figures`.
