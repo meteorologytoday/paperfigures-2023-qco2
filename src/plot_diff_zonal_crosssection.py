@@ -48,9 +48,16 @@ lon_rng = np.array([0, 360]) + args.left_edge_lon
 z_rng   = np.array([200, 0])
 Re = 6.371e6
 
+
+
+
+
 with Dataset(domain_file, "r") as f:
     lat  = f.variables["yc"][:, 0]
     lon  = f.variables["xc"][0, :]
+
+    lon_beg_idx = np.argmin(np.abs(lon - args.left_edge_lon))
+    
 
 with Dataset(ocn_zdomain_file, "r") as f:
     z_w = f.variables["z_w"][:] / 100.0
@@ -71,6 +78,13 @@ lon_idx = {
     "ALL": lon > -1,
 }[region]
 """
+
+def rotate(arr, axis):
+    return np.roll(arr, - lon_beg_idx, axis=axis)
+
+lon_rotate = rotate(lon, axis=0)
+lon_rotate[- lon_beg_idx:] += 360.0
+
 
 data = {}
 
@@ -96,11 +110,14 @@ for scenario in ["CTL", "qco2"]:
             for varname in ["OMEGA", "DTCOND", "U", "V", "T", "MSE"]:
                 data[scenario][exp_name][varname] = f.variables[varname][0, :, lat_idx, :].mean(axis=1)
 
+                
+                data[scenario][exp_name][varname] = rotate(data[scenario][exp_name][varname], axis=1)
+
         with Dataset(ocn_filename, "r") as f:
             print("Loading %s" % (ocn_filename,))
             
 
-            for varname in ["WVEL", "VVEL", "TEMP"]:
+            for varname in ["WVEL", "VVEL", "UVEL", "TEMP"]:
                 if varname == "VVEL" and caseinfo["model"] != "POP2":
                     data[scenario][exp_name][varname] = f.variables["VVEL_T"][0, :, lat_idx, :].mean(axis=1)
                 else:
@@ -113,6 +130,8 @@ for scenario in ["CTL", "qco2"]:
                 # cm to meter
                 if varname in ["VVEL", "UVEL", "WVEL"] and caseinfo["model"] == "POP2":
                     data[scenario][exp_name][varname] /= 100.0
+                
+                data[scenario][exp_name][varname] = rotate(data[scenario][exp_name][varname], axis=1)
 
             # Load HMXL
             if "HMXL" in f.variables:
@@ -120,6 +139,8 @@ for scenario in ["CTL", "qco2"]:
                     data[scenario][exp_name]["HMXL"] = f.variables["HMXL"][0, 0, lat_idx, :].mean(axis=0)
                 else:
                     data[scenario][exp_name]["HMXL"] = f.variables["HMXL"][0, lat_idx, :].mean(axis=0) / 100
+                
+                data[scenario][exp_name]["HMXL"] = rotate(data[scenario][exp_name]["HMXL"], axis=0)
 
             else:
                 print("File %s does not contain HMXL. Skip it." % (ocn_filename,))
@@ -132,7 +153,9 @@ factors = {
     "OMEGA" : -1e2,
     "WVEL"  : 86400.0 * 365,
     "VVEL"  : 86400.0 * 365,
+    "UVEL"  : 86400.0 * 365,
     "V"     : 1,
+    "U"     : 1,
     "DTCOND"  : 86400.0,
     "MSE" : 1e-3,
 }
@@ -184,51 +207,46 @@ for exp_name, caseinfo in sim_casenames.items():
     label = "%s" % exp_name
 
     d = {}
-    for varname in ["WVEL", "TEMP", "OMEGA", "U", "V", "T", "DTCOND", "VVEL", "MSE"]:
+    for varname in ["WVEL", "TEMP", "OMEGA", "U", "V", "T", "DTCOND", "VVEL", "MSE", "UVEL"]:
         d[varname] = getDIFF(exp_name, varname) * factors[varname]
    
 
-    mappable_diff_atm = ax_atm.contourf(lon, lev, d["MSE"], cntr_levs["MSE"], cmap="afmhot_r", extend="both")
-    #mappable_diff_atm = ax_atm.contourf(lat, lev, d["OMEGA"], cntr_levs["OMEGA"], cmap="bwr", extend="both")
-    #mappable_diff_atm = ax_atm.contourf(lat, lev, d["DTCOND"], cntr_levs["DTCOND"], cmap="hot_r", extend="both")
-    CS = ax_atm.contour(lon, lev, d["OMEGA"], cntr_levs["OMEGA"], colors="k", linewidths=1)
-    #CS = ax_atm.contour(lat, lev, d["T"], cntr_levs["T"], colors="k", linewidths=1)
+    mappable_diff_atm = ax_atm.contourf(lon_rotate, lev, d["MSE"], cntr_levs["MSE"], cmap="afmhot_r", extend="both")
+    CS = ax_atm.contour(lon_rotate, lev, d["OMEGA"], cntr_levs["OMEGA"], colors="k", linewidths=1)
     clabels = plt.clabel(CS, CS.levels, inline=True, fmt="%.1f", inline_spacing=0)
 
     # Vectors
-    quiver_ratio = np.abs(1000 - 100) / (np.abs(lon_rng[1] - lon_rng[0]) * (2*np.pi*Re/360.0) )
-    ax_atm.quiver(lon, lev, d["U"], - d["OMEGA"] / quiver_ratio, scale=0.5e7)
+    lon_skips = 10
+    quiver_ratio = 1#np.abs(1000 - 100) / ( np.abs(lon_rng[1] - lon_rng[0]) * ( np.pi/180.0 * Re))
+    ax_atm.quiver(lon_rotate[::lon_skips], lev, d["U"][:, ::lon_skips] * (180 / np.pi / Re) / 50, d["OMEGA"][:, ::lon_skips] / .5e7  , scale=1/86400.0)
 
     ax_atm.set_title("(%s) %s" % ("abcdefghijklmn"[ax_idx+args.thumbnail_skip], label))
 
     ocn_z_t = z_t[0:d["TEMP"].shape[0]]
-    mappable_diff_ocn = ax_ocn.contourf(lon, ocn_z_t, d["TEMP"], cntr_levs["TEMP"], cmap="OrRd", extend="both")
+    mappable_diff_ocn = ax_ocn.contourf(lon_rotate, ocn_z_t, d["TEMP"], cntr_levs["TEMP"], cmap="OrRd", extend="both")
 
-    CS = ax_ocn.contour(lon, ocn_z_t, d["WVEL"], cntr_levs["WVEL"], colors="k", linewidths=1)
-    #mappable_diff_ocn = ax_ocn.contourf(lat, ocn_z_t, d["WVEL"], cntr_levs["WVEL"], cmap="bwr", extend="both")
-    #CS = ax_ocn.contour(lat, ocn_z_t, d["TEMP"], cntr_levs["TEMP"], colors="k", linewidths=1)
-    #clabels = plt.clabel(CS, CS.levels, inline=True, fmt="%.1f", inline_spacing=0)
+    CS = ax_ocn.contour(lon_rotate, ocn_z_t, d["WVEL"], cntr_levs["WVEL"], colors="k", linewidths=1)
     
     
     HMXL = data["qco2"][exp_name]["HMXL"]
-    ax_ocn.plot(lon, HMXL, color="white", linewidth=2)
+    ax_ocn.plot(lon_rotate, HMXL, color="white", linewidth=2)
 
 
     quiver_ratio = np.abs(z_rng[1] - z_rng[0]) / (np.abs(lon_rng[1] - lon_rng[0]) * (2*np.pi*Re/360.0) )
-    #ax_ocn.quiver(lat, ocn_z_t, d["UVEL"], d["WVEL"] / quiver_ratio, scale=0.5e7)
-    #ax_ocn.streamplot(lat, ocn_z_t, d["VVEL"], d["WVEL"] / quiver_ratio)
-
 
     if caseinfo["model"] == "POP2":
         HMXL_before = data["qco2"]["EMOM"]["HMXL"]
-        ax_ocn.plot(lon, HMXL_before, color="white", ls="dashed", linewidth=1)
+        ax_ocn.plot(lon_rotate, HMXL_before, color="white", ls="dashed", linewidth=1)
+   
+    lon_skips = 10 
+    ax_ocn.quiver(lon_rotate[::lon_skips], ocn_z_t, d["UVEL"][:, ::lon_skips] * (180 / np.pi / Re) / 200, d["WVEL"][:, ::lon_skips] / 1e2 , scale=10)
 
     ax_atm.set_ylim([1000, 100])
 
     ax_ocn.set_ylim(z_rng)
 
   
-    ax_ocn.set_xticks(np.linspace(0, 360, 7))
+    ax_ocn.set_xticks(np.linspace(0, 360, 7) + args.left_edge_lon)
     #ax_ocn.set_xticklabels(["10S", "EQ", "10N",])
 
     ax_atm.set_ylabel("Pressure [hPa]")
@@ -245,7 +263,7 @@ for exp_name, caseinfo in sim_casenames.items():
     ax_idx += 1
 
 
-fig.savefig("figures/diff_zonal_crosssection.png", dpi=200)
+fig.savefig("figures/diff_zonal_crosssection.png", dpi=100)
 
 plt.show()
 plt.close(fig)
