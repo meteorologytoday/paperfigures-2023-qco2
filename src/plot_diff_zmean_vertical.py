@@ -4,7 +4,7 @@ import sys, argparse
 from netCDF4 import Dataset
 import numpy as np
 from pprint import pprint
-
+import prettyLatLon
 
 import matplotlib as mplt
 import matplotlib.pyplot as plt
@@ -135,7 +135,7 @@ factors = {
 cntr_levs = {
     "OMEGA" : np.linspace(-5,   5, 21),
     "T"     : np.linspace(0, 10, 21),
-    "TEMP"  : np.linspace(2, 4, 3),
+    "TEMP"  : np.linspace(2, 5, 21),
     "WVEL"  : np.linspace(-100, 100, 21),
     "DTCOND": np.linspace(-1, 1, 21),
     "MSE"   : np.linspace(8, 18, 21),
@@ -143,7 +143,7 @@ cntr_levs = {
  
 cb_ticks = {
     "T"     : np.linspace(0, 10, 6),
-    "TEMP"  : np.linspace(2, 4, 3),
+    "TEMP"  : np.linspace(2, 5, 4),
     "MSE"  : np.linspace(8, 18, 6),
 } 
     
@@ -208,9 +208,6 @@ for exp_name, caseinfo in sim_casenames.items():
 
     ax_ocn.set_ylim(z_rng)
 
-  
-    ax_ocn.set_xticks([-10, 0, 10])
-    ax_ocn.set_xticklabels(["10S", "EQ", "10N",])
 
     ax_atm.set_ylabel("Pressure [hPa]")
     ax_ocn.set_ylabel("Depth [m]")
@@ -218,6 +215,10 @@ for exp_name, caseinfo in sim_casenames.items():
     for _ax in [ax_atm, ax_ocn]:
         _ax.grid(True)
         _ax.set_xlim(lat_rng)
+        _ax.set_xticks([-10, 0, 10])
+        _ax.set_xticklabels(prettyLatLon.getPrettyLat(_ax.get_xticks()))
+
+
  
     plt.colorbar(mappable_diff_atm, ax=ax_atm, orientation="vertical", label="MSE [kJ]", ticks=cb_ticks["MSE"])
     plt.colorbar(mappable_diff_ocn, ax=ax_ocn, orientation="vertical", label="Ocean Temp [K]", ticks=cb_ticks["TEMP"])

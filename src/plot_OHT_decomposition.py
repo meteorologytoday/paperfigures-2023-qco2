@@ -4,6 +4,7 @@ from matplotlib import cm
 #from quick_tools import *
 from quick_tools2 import *
 
+import prettyLatLon
 import os
 
 from matplotlib import rc
@@ -196,7 +197,7 @@ for _ax in ax:
     _ax.plot([-90, 90], [0, 0], linestyle="dashed", color="black", linewidth=1)
     _ax.set_xticks([-10, 0, 10])
  
-ax[-1].set_xticklabels(["10S", "EQ", "10N"])
+ax[-1].set_xticklabels(prettyLatLon.getPrettyLat(ax[-1].get_xticks()))
 ax[-1].set_xlim([-15, 15])
 
 ax[0].set_ylim([-4.0, 5.0])

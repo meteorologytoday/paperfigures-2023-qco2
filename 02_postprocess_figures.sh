@@ -63,6 +63,7 @@ name_pairs=(
     diff_zmean_ln_merged-PAC.png            fig04.png
     all-merged-ATL.png                      figs01.png
     all-merged-IND.png                      figs02.png
+    diff_zonal_crosssection.png             figs03.png
 )
 
 N=$(( ${#name_pairs[@]} / 2 ))

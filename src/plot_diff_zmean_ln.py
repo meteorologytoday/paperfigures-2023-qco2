@@ -3,6 +3,7 @@ import matplotlib as mplt
 from matplotlib import cm
 from quick_tools import *
 
+import prettyLatLon
 import os
 
 from matplotlib import rc
@@ -376,7 +377,7 @@ for (i, varname) in enumerate(plot_vars):
         _ax.tick_params(axis='x', which='both',length=0)
 
     #ax[-1].set_xticklabels(["90S", "60S", "30S", "EQ", "30N", "60N", "90N"])
-    ax[-1].set_xticklabels(["10S", "EQ", "10N"])
+    ax[-1].set_xticklabels(prettyLatLon.getPrettyLat(ax[-1].get_xticks()))
     ax[-1].set_xlim([-15, 15])
 
 #fig.subplots_adjust(bottom=0.2)    

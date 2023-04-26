@@ -1,6 +1,7 @@
 import matplotlib as mplt
 from matplotlib import cm
 
+import prettyLatLon
 import os
 
 #mplt.use('Agg')
@@ -135,6 +136,7 @@ ax.set_xlim([-30, 60])
 #ax.set_xlabel("Latitude")
 ax.set_ylabel("Depth [ m ]")
 ax.set_xticks([-30, 0, 30, 60])
+ax.set_xticklabels(prettyLatLon.getPrettyLat(ax.get_xticks()))
 #ax.grid()
 #ax.set_xticklabels(["60S", "30S", "EQ", "30N", "60N"])
 

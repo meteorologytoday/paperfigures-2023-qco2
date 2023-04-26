@@ -10,6 +10,8 @@ import matplotlib as mplt
 import matplotlib.pyplot as plt
 from matplotlib import cm
 from matplotlib import rc
+import prettyLatLon
+
 
 default_linewidth = 2.0;
 default_ticksize = 10.0;
@@ -163,7 +165,7 @@ factors = {
 cntr_levs = {
     "OMEGA" : np.linspace(-5,   5, 11),
     "T"     : np.linspace(0, 10, 21),
-    "TEMP"  : np.linspace(2, 4, 21),
+    "TEMP"  : np.linspace(2, 5, 21),
     "WVEL"  : np.linspace(-100, 100, 11),
     "DTCOND": np.linspace(-1, 1, 21),
     "MSE"   : np.linspace(8, 18, 21),
@@ -171,16 +173,16 @@ cntr_levs = {
  
 cb_ticks = {
     "T"     : np.linspace(0, 10, 6),
-    "TEMP"  : np.linspace(2, 4, 3),
+    "TEMP"  : np.linspace(2, 5, 4),
     "MSE"  : np.linspace(8, 18, 6),
 } 
     
 fig, ax = plt.subplots(
-    2 * len(plot_cases) // 1,
-    1,
+    2 * len(plot_cases) // 2,
+    2,
     sharey=False,
     sharex=False,
-    figsize=(10, 3 * (2*len(plot_cases) / 1)),
+    figsize=(20, 3 * (2*len(plot_cases) / 2)),
     constrained_layout=True,
     squeeze=False,
 )
@@ -198,11 +200,11 @@ for exp_name, caseinfo in sim_casenames.items():
 
     print("Doing: ", exp_name)
 
-    #ax_atm = ax[2 * (ax_idx//2)    , ax_idx%2]
-    #ax_ocn = ax[2 * (ax_idx//2) + 1, ax_idx%2]
+    ax_atm = ax[2 * (ax_idx//2)    , ax_idx%2]
+    ax_ocn = ax[2 * (ax_idx//2) + 1, ax_idx%2]
  
-    ax_atm = ax[2 * (ax_idx//1)    , 0]
-    ax_ocn = ax[2 * (ax_idx//1) + 1, 0]
+    #ax_atm = ax[2 * (ax_idx//1)    , 0]
+    #ax_ocn = ax[2 * (ax_idx//1) + 1, 0]
 
     label = "%s" % exp_name
 
@@ -246,16 +248,16 @@ for exp_name, caseinfo in sim_casenames.items():
     ax_ocn.set_ylim(z_rng)
 
   
-    ax_ocn.set_xticks(np.linspace(0, 360, 7) + args.left_edge_lon)
-    #ax_ocn.set_xticklabels(["10S", "EQ", "10N",])
-
     ax_atm.set_ylabel("Pressure [hPa]")
     ax_ocn.set_ylabel("Depth [m]")
 
     for _ax in [ax_atm, ax_ocn]:
         _ax.grid(True)
         _ax.set_xlim(lon_rng)
- 
+        _ax.set_xticks(np.linspace(0, 360, 7) + args.left_edge_lon)
+        _ax.set_xticklabels(prettyLatLon.getPrettyLon(_ax.get_xticks()))
+
+
     plt.colorbar(mappable_diff_atm, ax=ax_atm, orientation="vertical", label="MSE [kJ]", ticks=cb_ticks["MSE"])
     plt.colorbar(mappable_diff_ocn, ax=ax_ocn, orientation="vertical", label="Ocean Temp [K]", ticks=cb_ticks["TEMP"])
 
@@ -263,8 +265,8 @@ for exp_name, caseinfo in sim_casenames.items():
     ax_idx += 1
 
 
-fig.savefig("figures/diff_zonal_crosssection.png", dpi=100)
+fig.savefig("figures/diff_zonal_crosssection.png", dpi=200)
 
-plt.show()
+#plt.show()
 plt.close(fig)
 

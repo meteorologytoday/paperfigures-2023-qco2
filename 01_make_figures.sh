@@ -20,6 +20,7 @@ plot_codes=(
     $py "$srcdir/plot_OHT_decomposition.py --region=PAC --thumbnail-skip 3"
     $py "$srcdir/plot_OHT_decomposition.py --region=ATL --thumbnail-skip 7"
     $py "$srcdir/plot_OHT_decomposition.py --region=IND --thumbnail-skip 7"
+    $py "$srcdir/plot_diff_zonal_crosssection.py"
 )
 
 mkdir figures
