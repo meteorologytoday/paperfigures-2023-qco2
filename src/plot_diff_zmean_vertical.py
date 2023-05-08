@@ -227,7 +227,7 @@ for exp_name, caseinfo in sim_casenames.items():
     ax_idx += 1
 
 
-fig.savefig("figures/diff_zmean_vertical_%s.png" % (region,), dpi=200)
+fig.savefig("figures/diff_zmean_vertical_%s.png" % (region,), dpi=600)
 
 plt.show()
 plt.close(fig)

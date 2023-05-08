@@ -34,8 +34,8 @@ for region in PAC ATL IND ; do
          +append \
          figures/diff_zmean_ln_merged-$region.png
 
-    convert figures/diff_zmean_vertical_$region.png \
-            \( -resize 44% figures/diff_zmean_ln_merged-$region.png \) \
+    convert \( -resize 75% figures/diff_zmean_vertical_$region.png \) \
+            \( figures/diff_zmean_ln_merged-$region.png \) \
             +append \
             figures/all-merged-$region.png
 
@@ -61,9 +61,9 @@ name_pairs=(
     diff_map_SST-PREC_TOTAL.png             fig02.png
     diff_zmean_vertical_PAC.png             fig03.png
     diff_zmean_ln_merged-PAC.png            fig04.png
-    all-merged-ATL.png                      figs01.png
-    all-merged-IND.png                      figs02.png
-    diff_zonal_crosssection.png             figs03.png
+    diff_zonal_crosssection.png             figS01.png
+    all-merged-ATL.png                      figS02.png
+    all-merged-IND.png                      figS03.png
 )
 
 N=$(( ${#name_pairs[@]} / 2 ))
