@@ -10,7 +10,12 @@ This is the code to reproduce figures of the paper "The Effect of Air-sea Coupli
     - Numpy
     - Scipy
     - netCDF4
-2. ImageMagick >= 6.9.10
+2. Julia >= 1.8
+    - Fomatting
+    - NCDatasets
+    - Statistics
+3. ImageMagick >= 6.9.10
+
 
 # Reproducing Figures
 
